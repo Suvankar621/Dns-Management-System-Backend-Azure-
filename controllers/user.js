@@ -5,27 +5,33 @@ import { sendCookie } from "../utils/features.js";
 
 
 export const Register=async(req,res)=>{
-    const {name,email,password}=req.body;
+    try {
+        const {name,email,password,subscriptionid,clientid,client_secret,tenantId}=req.body;
 
-    let user= await User.findOne({email});
-
-    if(user){
-        return res.status(404).json({
-            success:false,
-            message:"User Already Exist"
-        })
+        let user= await User.findOne({email});
+    
+        if(user){
+            return res.status(404).json({
+                success:false,
+                message:"User Already Exist"
+            })
+        }
+        const hashedPassword=await bcrypt.hash(password,10);
+    
+        user=await User.create({name,email,subscriptionid,clientid,client_secret,tenantId,password:hashedPassword,});
+        sendCookie(user,res,"Registerd Successfully",201);
+    } catch (error) {
+        res.status(500).send("Invalid Credentials");
     }
-    const hashedPassword=await bcrypt.hash(password,10);
-
-    user=await User.create({name,email,password:hashedPassword});
-    sendCookie(user,res,"Registerd Successfully",201);
+   
 
 
 }
 
 
 export const Login=async(req,res)=>{
-    const {email,password}=req.body;
+    try {
+        const {email,password}=req.body;
 
     let user=await User.findOne({email}).select("+password");
 
@@ -44,6 +50,10 @@ export const Login=async(req,res)=>{
         })
     }
     sendCookie(user,res,`Welcome Back, ${user.name}`,200);
+    } catch (error) {
+        res.status(500).send("Invalid Credentials");
+    }
+    
  
 }
 

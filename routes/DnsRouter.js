@@ -4,7 +4,9 @@ import { isAuthenticated } from "../middleware/auth.js";
 
 const router=express.Router();
 
-router.get("/dns/:domain",isAuthenticated,GetAllDns).post(AddDns);
-router.put("/dns/:domain/:recordName",isAuthenticated, UpdateDns).delete(DeleteDns);
+router.get("/dns",isAuthenticated,GetAllDns);
+router.put("/dns/add", isAuthenticated, AddDns);
+router.put("/dns/edit", isAuthenticated, UpdateDns);
+router.delete("/dns/delete",isAuthenticated, DeleteDns);
 
 export default router;

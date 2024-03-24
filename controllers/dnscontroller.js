@@ -1,74 +1,194 @@
-import { DefaultAzureCredential } from '@azure/identity';
-import { DnsManagementClient } from '@azure/arm-dns';
+import axios from "axios";
 import dotenv from "dotenv";
+import { GenerateAuthToken } from "../utils/features.js";
 
 dotenv.config({
-    path:"./data/config.env",
+  path: "./data/config.env",
 });
 
-const credential = new DefaultAzureCredential();
-const dnsClient = new DnsManagementClient(credential, process.env.AZURE_SUBSCRIPTION_ID);
-
-// Get all DNS
+// Get All Dns
+//////////////////////////////////////////////////////////////////
 export const GetAllDns = async (req, res) => {
-    const domain = req.params.domain;
+  try {
+    const { tenantId, clientid, client_secret, subscriptionid } =
+      await req.user;
+    const { AZURE_RESOURCE_GROUP, ZONE } = req.body;
 
-    try {
-      const records = await dnsClient.recordSets.listAllByDnsZone(process.env.AZURE_RESOURCE_GROUP, domain);
-      res.json(records);
-    } catch (error) {
-      console.error('Error fetching DNS records:', error.message);
-      res.status(500).json({ error: 'Internal server error' });
-    }
+    const token = await GenerateAuthToken(
+      tenantId,
+      clientid,
+      client_secret,
+      "https://management.azure.com/"
+    );
+    const authtoken = `Bearer ${token}`;
+
+    const URL = `https://management.azure.com/subscriptions/${subscriptionid}/resourceGroups/${AZURE_RESOURCE_GROUP}/providers/Microsoft.Network/dnsZones/${ZONE}/all?api-version=2018-05-01`;
+    // Generating AuthToken
+
+    ///////////////////////////////////////
+
+    const { data } = await axios.get(URL, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: authtoken,
+      },
+    });
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    res.status(500).send("Invalid Credentials");
+  }
 };
+//////////////////////////////////////////////////////////////
+
 
 // ADD DNS
-export const AddDns = async (req, res) => {
-    const domain = req.params.domain;
-    const record = req.body;
-  
-    try {
-      const result = await dnsClient.recordSets.createOrUpdate(process.env.AZURE_RESOURCE_GROUP, domain, record.name, 'A', {
-        ttl: record.ttl,
-        aRecords: [{ ipv4Address: record.ipv4Address }]
-      });
-      res.json(result);
-    } catch (error) {
-      console.error('Error adding DNS record:', error.message);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-};
+/////////////////////////////////////////////////////////////
 
+export const AddDns = async (req, res) => {
+  const { recordType, recordName, AZURE_RESOURCE_GROUP, ZONE } = req.body;
+
+  const { tenantId, clientid, client_secret, subscriptionid } = await req.user;
+
+  const token = await GenerateAuthToken(
+    tenantId,
+    clientid,
+    client_secret,
+    "https://management.azure.com/"
+  );
+  const authtoken = `Bearer ${token}`;
+
+  const URL = `https://management.azure.com/subscriptions/${subscriptionid}/resourceGroups/${AZURE_RESOURCE_GROUP}/providers/Microsoft.Network/dnsZones/${ZONE}/${recordType}/${recordName}?api-version=2018-05-01`;
+
+  try {
+    // Request body
+    const requestBody = {
+      properties: {
+        metadata: {
+          key1: "value1",
+        },
+        TTL: 3600,
+        ARecords: [
+          {
+            ipv4Address: "127.0.0.1",
+          },
+        ],
+      },
+    };
+
+    // Make the PUT request
+    const { data } = await axios.put(URL, requestBody, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: authtoken,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+////////////////////////////////////////////////////////////////////
 
 // Update DNS
+/////////////////////////////////////////////////////////////////////
 export const UpdateDns = async (req, res) => {
-    const domain = req.params.domain;
-    const recordName = req.params.recordName;
-    const record = req.body;
-  
-    try {
-      const result = await dnsClient.recordSets.createOrUpdate(process.env.AZURE_RESOURCE_GROUP, domain, recordName, 'A', {
-        ttl: record.ttl,
-        aRecords: [{ ipv4Address: record.ipv4Address }]
-      });
-      res.json(result);
-    } catch (error) {
-      console.error('Error updating DNS record:', error.message);
-      res.status(500).json({ error: 'Internal server error' });
-    }
+  const { recordType, recordName, AZURE_RESOURCE_GROUP, ZONE } = req.body;
+
+  const { tenantId, clientid, client_secret, subscriptionid } = await req.user;
+
+  const token = await GenerateAuthToken(
+    tenantId,
+    clientid,
+    client_secret,
+    "https://management.azure.com/"
+  );
+  const authtoken = `Bearer ${token}`;
+
+  const URL = `https://management.azure.com/subscriptions/${subscriptionid}/resourceGroups/${AZURE_RESOURCE_GROUP}/providers/Microsoft.Network/dnsZones/${ZONE}/${recordType}/${recordName}?api-version=2018-05-01`;
+
+  try {
+    // Request body
+    const requestBody = {
+      properties: {
+        metadata: {
+          key1: "value1",
+        },
+        TTL: 3600,
+        ARecords: [
+          {
+            ipv4Address: "127.0.0.1",
+          },
+        ],
+      },
+    };
+
+    // Make the PUT request
+    const { data } = await axios.put(URL, requestBody, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: authtoken,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
 };
+//////////////////////////////////////////////////////////////////////
 
 
 // DELETE DNS
+///////////////////////////////////////////////////////////////
 export const DeleteDns = async (req, res) => {
-    const domain = req.params.domain;
-    const recordName = req.params.recordName;
-  
-    try {
-      await dnsClient.recordSets.deleteMethod(process.env.AZURE_RESOURCE_GROUP, domain, recordName, 'A');
-      res.json({ message: 'DNS record deleted successfully' });
-    } catch (error) {
-      console.error('Error deleting DNS record:', error.message);
-      res.status(500).json({ error: 'Internal server error' });
-    }
+  try {
+    const { recordType, recordName, AZURE_RESOURCE_GROUP, ZONE } = req.body;
+
+    const { tenantId, clientid, client_secret, subscriptionid } =
+      await req.user;
+
+    const token = await GenerateAuthToken(
+      tenantId,
+      clientid,
+      client_secret,
+      "https://management.azure.com/"
+    );
+    const authtoken = `Bearer ${token}`;
+
+    const URL = `https://management.azure.com/subscriptions/${subscriptionid}/resourceGroups/${AZURE_RESOURCE_GROUP}/providers/Microsoft.Network/dnsZones/${ZONE}/${recordType}/${recordName}?api-version=2018-05-01`;
+
+    await axios.delete(URL, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: authtoken,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Deleted Succesfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
 };
+/////////////////////////////////////////////////////////////

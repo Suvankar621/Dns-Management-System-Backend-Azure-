@@ -7,6 +7,27 @@ const schema=new mongoose.Schema({
         required:true,
         unique:true
     },
+    subscriptionid:{
+        type:String,
+        required:true,
+        unique:true
+    },
+    clientid:{
+        type:String,
+        required:true,
+        unique:true
+    },
+    client_secret:{
+        type:String,
+        required:true,
+        unique:true
+    },
+    tenantId:{
+        type:String,
+        required:true,
+        unique:true
+    },
+
     password:{
         type:String,
         required:true,
