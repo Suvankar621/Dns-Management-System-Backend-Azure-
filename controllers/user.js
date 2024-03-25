@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import {User} from "../models/user.js"
+import jwt from "jsonwebtoken"
 
 import { sendCookie } from "../utils/features.js";
 
@@ -56,6 +57,35 @@ export const Login=async(req,res)=>{
     
  
 }
+
+
+export const GetMyDetails=async(req,res)=>{
+    
+  try {
+    
+    const {token}=req.cookies;
+    if(!token){
+      return res.status(404).json({
+        success:false,
+        message:"Login First"
+    })
+    }
+
+  const decoadeddata=await jwt.verify(token,process.env.JWT_SECRET);
+  const user=await User.findById(decoadeddata._id);
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    res.status(500).send("Invalid Credentials");
+  }
+   
+
+
+}
+
+
 
 export const Logout=async(req,res)=>{
    res.status(200).cookie("token","",{expires:new Date(Date.now())}).json({
