@@ -14,10 +14,14 @@ export const GetAllDns = async (req, res) => {
 
   try {
     
-  const {token}=req.cookies;
-  if(!token){
-    res.status(500).send("Login First");
-  }
+    const {token}=req.cookies;
+    if(!token){
+      return res.status(404).json({
+        success:false,
+        message:"Invalid Credentials"
+    })
+    }
+
   const decoadeddata=jwt.verify(token,process.env.JWT_SECRET);
   const user=await User.findById(decoadeddata._id);
   // console.log(user);
