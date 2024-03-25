@@ -22,7 +22,7 @@ export const GetAllDns = async (req, res) => {
     })
     }
 
-  const decoadeddata=jwt.verify(token,process.env.JWT_SECRET);
+  const decoadeddata=await jwt.verify(token,process.env.JWT_SECRET);
   const user=await User.findById(decoadeddata._id);
   // console.log(user);
     // const { tenantId, clientid, client_secret } =
