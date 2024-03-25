@@ -1,6 +1,8 @@
 import axios from "axios";
 import dotenv from "dotenv";
 import { GenerateAuthToken } from "../utils/features.js";
+import jwt from "jsonwebtoken";
+import { User } from "../models/user.js";
 
 dotenv.config({
   path: "./data/config.env",
@@ -9,20 +11,29 @@ dotenv.config({
 // Get All Dns
 //////////////////////////////////////////////////////////////////
 export const GetAllDns = async (req, res) => {
+
   try {
-    const { tenantId, clientid, client_secret, subscriptionid } =
-      await req.user;
+    
+  const {token}=req.cookies;
+  if(!token){
+    res.status(500).send("Login First");
+  }
+  const decoadeddata=jwt.verify(token,process.env.JWT_SECRET);
+  const user=await User.findById(decoadeddata._id);
+  // console.log(user);
+    // const { tenantId, clientid, client_secret } =
+    //   await req.user;
     const { AZURE_RESOURCE_GROUP, ZONE } = req.body;
 
-    const token = await GenerateAuthToken(
-      tenantId,
-      clientid,
-      client_secret,
+    const atoken = await GenerateAuthToken(
+      user.tenantId,
+      user.clientid,
+      user.client_secret,
       "https://management.azure.com/"
     );
-    const authtoken = `Bearer ${token}`;
+    const authtoken = `Bearer ${atoken}`;
 
-    const URL = `https://management.azure.com/subscriptions/${subscriptionid}/resourceGroups/${AZURE_RESOURCE_GROUP}/providers/Microsoft.Network/dnsZones/${ZONE}/all?api-version=2018-05-01`;
+    const URL = `https://management.azure.com/subscriptions/${user.subscriptionid}/resourceGroups/${AZURE_RESOURCE_GROUP}/providers/Microsoft.Network/dnsZones/${ZONE}/all?api-version=2018-05-01`;
     // Generating AuthToken
 
     ///////////////////////////////////////
