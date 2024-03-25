@@ -9,7 +9,7 @@ import cors from "cors"
 export const app=express();
 
 app.use(cors({
-  origin: "https://suvankar-mahato-dnsmanager.netlify.app",
+  origin: ["https://suvankar-mahato-dnsmanager.netlify.app"],
   credentials: true
 }));
 app.use(express.json());
