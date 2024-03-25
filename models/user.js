@@ -27,6 +27,16 @@ const schema=new mongoose.Schema({
         required:true,
         unique:true
     },
+    Zone:{
+        type:String,
+        required:true,
+        unique:true
+    },
+    resourcegroupname:{
+        type:String,
+        required:true,
+        unique:true
+    },
 
     password:{
         type:String,

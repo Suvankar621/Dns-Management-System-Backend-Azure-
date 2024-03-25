@@ -2,12 +2,12 @@ import bcrypt from "bcrypt";
 import {User} from "../models/user.js"
 import jwt from "jsonwebtoken"
 
-import { GenerateAuthToken, sendCookie } from "../utils/features.js";
+import { sendCookie } from "../utils/features.js";
 
 
 export const Register=async(req,res)=>{
     try {
-        const {name,email,password,subscriptionid,clientid,client_secret,tenantId}=req.body;
+        const {name,email,password,subscriptionid,clientid,client_secret,tenantId ,Zone,resourcegroupname}=req.body;
 
         let user= await User.findOne({email});
     
@@ -19,7 +19,7 @@ export const Register=async(req,res)=>{
         }
         const hashedPassword=await bcrypt.hash(password,10);
     
-        user=await User.create({name,email,subscriptionid,clientid,client_secret,tenantId,password:hashedPassword,});
+        user=await User.create({name,email,subscriptionid,clientid,client_secret,tenantId,Zone,resourcegroupname,password:hashedPassword,});
         sendCookie(user,res,"Registerd Successfully",201);
     } catch (error) {
         res.status(500).send("Invalid Credentials");
