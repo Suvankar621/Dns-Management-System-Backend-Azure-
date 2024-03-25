@@ -27,30 +27,30 @@ export const GetAllDns = async (req, res) => {
   // console.log(user);
     // const { tenantId, clientid, client_secret } =
     //   await req.user;
-    const { AZURE_RESOURCE_GROUP, ZONE } = req.body;
+    // const { AZURE_RESOURCE_GROUP, ZONE } = req.body;
 
-    const atoken = await GenerateAuthToken(
-      user.tenantId,
-      user.clientid,
-      user.client_secret,
-      "https://management.azure.com/"
-    );
-    const authtoken = `Bearer ${atoken}`;
+    // const atoken = await GenerateAuthToken(
+    //   user.tenantId,
+    //   user.clientid,
+    //   user.client_secret,
+    //   "https://management.azure.com/"
+    // );
+    // const authtoken = `Bearer ${atoken}`;
 
-    const URL = `https://management.azure.com/subscriptions/${user.subscriptionid}/resourceGroups/${AZURE_RESOURCE_GROUP}/providers/Microsoft.Network/dnsZones/${ZONE}/all?api-version=2018-05-01`;
-    // Generating AuthToken
+    // const URL = `https://management.azure.com/subscriptions/${user.subscriptionid}/resourceGroups/${AZURE_RESOURCE_GROUP}/providers/Microsoft.Network/dnsZones/${ZONE}/all?api-version=2018-05-01`;
+    // // Generating AuthToken
 
-    ///////////////////////////////////////
+    // ///////////////////////////////////////
 
-    const { data } = await axios.get(URL, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: authtoken,
-      },
-    });
+    // const { data } = await axios.get(URL, {
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization: authtoken,
+    //   },
+    // });
     res.status(200).json({
       success: true,
-      data,
+      user,
     });
   } catch (error) {
     res.status(500).send("Invalid Credentials");
