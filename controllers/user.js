@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import {User} from "../models/user.js"
 import jwt from "jsonwebtoken"
 
-import { sendCookie } from "../utils/features.js";
+import { GenerateAuthToken, sendCookie } from "../utils/features.js";
 
 
 export const Register=async(req,res)=>{
@@ -73,9 +73,22 @@ export const GetMyDetails=async(req,res)=>{
 
   const decoadeddata=await jwt.verify(token,process.env.JWT_SECRET);
   const user=await User.findById(decoadeddata._id);
+  //////////////////
+  const { tenantId, clientid, client_secret } =await user;
+
+ const atoken = await GenerateAuthToken(
+  tenantId,
+  clientid,
+  client_secret,
+  "https://management.azure.com/"
+);
+const authtoken = `Bearer ${atoken}`;
+
+
+  //////////////////
     res.status(200).json({
       success: true,
-      user,
+      user,authtoken
     });
   } catch (error) {
     res.status(500).send("Invalid Credentials");
