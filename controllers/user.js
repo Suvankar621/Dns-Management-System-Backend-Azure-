@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import {User} from "../models/user.js"
 import jwt from "jsonwebtoken"
 
-import { sendCookie } from "../utils/features.js";
+import { GenerateAuthToken, sendCookie } from "../utils/features.js";
 
 
 export const Register=async(req,res)=>{
