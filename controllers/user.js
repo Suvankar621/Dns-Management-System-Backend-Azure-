@@ -100,10 +100,13 @@ const authtoken = `Bearer ${atoken}`;
 
 
 
-export const Logout=async(req,res)=>{
-   res.status(200).cookie("token","").json({
-    success:true,
-    message:"Logout Successfully"
-   })
- 
-}
+export const Logout = async (req, res) => {
+    res.cookie("token", "", {
+      httpOnly: true,
+      expires: new Date(0), // Set expiration date in the past
+    }).status(200).json({
+      success: true,
+      message: "Logout Successfully"
+    });
+  };
+  
