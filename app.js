@@ -8,12 +8,12 @@ import cors from "cors"
 
 export const app=express();
 
-const corsOptions = {
-    origin: process.env.frontendurl,
-    credentials: true,
-  };
+
 app.use(express.json());
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: '*',
+  credentials: true
+}));
 app.use(cookieParser());
 
 
